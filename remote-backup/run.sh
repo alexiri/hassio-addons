@@ -80,12 +80,12 @@ function delete-remote-backup {
     if [[ ${KEEP_LOCAL_BACKUP} == "all" ]]; then
         :
     else
-        ssh -F "${HOME}/.ssh/config" remote <<ENDSSH
+        ssh -F "${HOME}/.ssh/config" -T remote <<ENDSSH
             find ~/hassio-backups -type f -regex '.*\.\(zip\|tar\)$' -printf '%T@\t%p\n' | \
             sort -g | \
             head -n -"${KEEP_REMOTE_BACKUP}" | \
             cut -d $'\t' -f 2- | \
-            xargs rm -v
+            xargs --no-run-if-empty rm -v
 ENDSSH
     fi
 }
