@@ -39,12 +39,14 @@ function copy-backup-to-remote {
 
     cd /backup/
     if [[ -z $ZIP_PASSWORD  ]]; then
-      echo "Copying ${slug}.tar to ${REMOTE_DIRECTORY} on ${SSH_HOST} using SCP"
-      scp -F "${HOME}/.ssh/config" "${slug}.tar" remote:"${REMOTE_DIRECTORY}"
+      newname=`date +"%Y%m%d-%H%M-${slug}.tar"`
+      echo "Copying ${slug}.tar to ${REMOTE_DIRECTORY}/${newname} on ${SSH_HOST} using SCP"
+      scp -F "${HOME}/.ssh/config" "${slug}.tar" remote:"${REMOTE_DIRECTORY}/${newname}"
     else
-      echo "Copying password-protected ${slug}.zip to ${REMOTE_DIRECTORY} on ${SSH_HOST} using SCP"
+      newname=`date +"%Y%m%d-%H%M-${slug}.zip"`
+      echo "Copying password-protected ${slug}.zip to ${REMOTE_DIRECTORY}/${newname} on ${SSH_HOST} using SCP"
       zip -P "$ZIP_PASSWORD" "${slug}.zip" "${slug}".tar
-      scp -F "${HOME}/.ssh/config" "${slug}.zip" remote:"${REMOTE_DIRECTORY}" && rm "${slug}.zip"
+      scp -F "${HOME}/.ssh/config" "${slug}.zip" remote:"${REMOTE_DIRECTORY}/${newname}" && rm "${slug}.zip"
     fi
 
 }
