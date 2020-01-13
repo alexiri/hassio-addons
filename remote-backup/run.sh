@@ -11,6 +11,7 @@ SSH_KEY=$(jq --raw-output ".ssh_key[]" $CONFIG_PATH)
 REMOTE_DIRECTORY=$(jq --raw-output ".remote_directory" $CONFIG_PATH)
 ZIP_PASSWORD=$(jq --raw-output '.zip_password' $CONFIG_PATH)
 KEEP_LOCAL_BACKUP=$(jq --raw-output '.keep_local_backup' $CONFIG_PATH)
+KEEP_REMOTE_BACKUP=$(jq --raw-output '.keep_remote_backup' $CONFIG_PATH)
 
 # create variables
 SSH_ID="${HOME}/.ssh/id"
@@ -39,11 +40,11 @@ function copy-backup-to-remote {
 
     cd /backup/
     if [[ -z $ZIP_PASSWORD  ]]; then
-      newname=`date +"%Y%m%d-%H%M-${slug}.tar"`
+      newname=$(date +"%Y%m%d-%H%M-${slug}.tar")
       echo "Copying ${slug}.tar to ${REMOTE_DIRECTORY}/${newname} on ${SSH_HOST} using SCP"
       scp -F "${HOME}/.ssh/config" "${slug}.tar" remote:"${REMOTE_DIRECTORY}/${newname}"
     else
-      newname=`date +"%Y%m%d-%H%M-${slug}.zip"`
+      newname=$(date +"%Y%m%d-%H%M-${slug}.zip")
       echo "Copying password-protected ${slug}.zip to ${REMOTE_DIRECTORY}/${newname} on ${SSH_HOST} using SCP"
       zip -P "$ZIP_PASSWORD" "${slug}.zip" "${slug}".tar
       scp -F "${HOME}/.ssh/config" "${slug}.zip" remote:"${REMOTE_DIRECTORY}/${newname}" && rm "${slug}.zip"
@@ -75,6 +76,20 @@ function delete-local-backup {
     fi
 }
 
+function delete-remote-backup {
+    if [[ ${KEEP_LOCAL_BACKUP} == "all" ]]; then
+        :
+    else
+        ssh -F "${HOME}/.ssh/config" remote <<ENDSSH
+            find ~/hassio-backups -type f -regex '.*\.\(zip\|tar\)$' -printf '%T@\t%f\n' | \
+            sort -g | \
+            head -n -"${KEEP_REMOTE_BACKUP}" | \
+            cut -d $'\t' -f 2- | \
+            xargs rm -v
+ENDSSH
+    fi
+}
+
 function create-local-backup {
     name="Automated backup $(date +'%Y-%m-%d %H:%M')"
     echo "Creating local backup: \"${name}\""
@@ -87,6 +102,7 @@ add-ssh-key
 create-local-backup
 copy-backup-to-remote
 delete-local-backup
+delete-remote-backup
 
 echo "Backup process done!"
 exit 0
