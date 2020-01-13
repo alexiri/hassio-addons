@@ -81,7 +81,7 @@ function delete-remote-backup {
         :
     else
         ssh -F "${HOME}/.ssh/config" remote <<ENDSSH
-            find ~/hassio-backups -type f -regex '.*\.\(zip\|tar\)$' -printf '%T@\t%f\n' | \
+            find ~/hassio-backups -type f -regex '.*\.\(zip\|tar\)$' -printf '%T@\t%p\n' | \
             sort -g | \
             head -n -"${KEEP_REMOTE_BACKUP}" | \
             cut -d $'\t' -f 2- | \
