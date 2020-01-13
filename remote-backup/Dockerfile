@@ -37,7 +37,7 @@ LABEL \
     org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.name="Remote Backup" \
     org.label-schema.schema-version="1.0" \
-    org.label-schema.usage="https://github.com/thestigh/hassio-remote-backup/tree/master/README.md" \
+    org.label-schema.usage="https://github.com/alexiri/hassio-remote-backup/tree/master/README.md" \
     org.label-schema.vcs-ref=${BUILD_REF} \
-    org.label-schema.vcs-url="https://github.com/thestigh/hassio-remote-backup/" \
+    org.label-schema.vcs-url="https://github.com/alexiri/hassio-remote-backup/" \
     org.label-schema.vendor="Hass.io add-ons by Nicolai/TheStigh"
